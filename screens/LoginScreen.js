@@ -1,8 +1,10 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, Button } from 'react-native'
 import useAuth from '../hooks/useAuth'
 
 const LoginScreen = () => {
+
+  let {signInWithGoogle} = useAuth()
 
   let {user} = useAuth()
   console.log(user);
@@ -10,6 +12,7 @@ const LoginScreen = () => {
   return (
     <View>
       <Text>Hello from Login Screen</Text>
+      <Button title='Login' onPress={signInWithGoogle} />
     </View>
   )
 }
