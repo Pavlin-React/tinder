@@ -1,5 +1,12 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Google from "expo-google-app-auth";
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithCredential,
+  signOut,
+} from "firebase/auth";
+import { auth } from "../firebase";
 
 let AuthContext = createContext({
   // initial state
@@ -15,23 +22,58 @@ let config = {
 };
 
 export const AuthProvider = ({ children }) => {
+  let [error, setError] = useState(null);
+  let [user, setUser] = useState(null);
+  let [loadingInitial, setLoadingInitial] = useState(true);
+  let [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        //  logged in
+        setUser(user);
+      } else {
+        // not log in
+        setUser(null);
+      }
+      setLoadingInitial(false);
+    });
+  }, []);
+
+  let logout = () => {
+    setLoading(true);
+
+    signOut(auth)
+      .catch((error) => setError(error))
+      .finally(setLoading(false));
+  };
+
   let signInWithGoogle = async () => {
-    Google.logInAsync(config).then(
-      async((logInResult) => {
+    setLoading(true);
+    await Google.logInAsync(config)
+      .then(async (logInResult) => {
         if (logInResult.type === "success") {
+          let { idToken, accessToken } = logInResult;
+          let credential = GoogleAuthProvider.credential(idToken, accessToken);
+          await signInWithCredential(auth, credential);
         }
+        return Promise.reject();
       })
-    );
+      .catch((error) => setError(error))
+      .finally(() => setLoading(false));
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user: null,
+        user,
         signInWithGoogle,
+        loading,
+        error,
+        logout
       }}
     >
-      {children}
+      {!loadingInitial && children}
     </AuthContext.Provider>
   );
 };
