@@ -22,8 +22,16 @@ const LoginScreen = () => {
         style={tw("flex-1")}
         resizeMode="cover"
       >
-        <TouchableOpacity style={[tw('absolute bottom-40 w-52 bg-white p-4 rounded-2xl'), {marginHorizontal: '25%'}]} >
-          <Text style={tw('text-center')} >Sign In & get swiping</Text>
+        <TouchableOpacity
+          onPress={signInWithGoogle}
+          style={[
+            tw("absolute bottom-40 w-52 bg-white p-4 rounded-2xl"),
+            { marginHorizontal: "25%" },
+          ]}
+        >
+          <Text style={tw("font-semibold text-center")}>
+            Sign In & get swiping
+          </Text>
         </TouchableOpacity>
       </ImageBackground>
     </View>
